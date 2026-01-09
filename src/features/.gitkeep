@@ -1,0 +1,11 @@
+# Features folder
+# Mỗi feature sẽ có cấu trúc:
+# features/[feature-name]/
+#   ├─ components/
+#   ├─ pages/
+#   ├─ hooks/
+#   ├─ routes/
+#   ├─ stores/
+#   ├─ types/
+#   └─ utils/
+

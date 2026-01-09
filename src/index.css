@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Custom styles nếu cần */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
