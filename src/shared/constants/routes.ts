@@ -8,6 +8,7 @@ export const ROUTES = {
   MOVIE_DETAIL: (id: number | string) => `/movies/${id}`,
   BOOKING: (showtimeId: number | string) => `/booking/${showtimeId}`,
   PROFILE: '/profile',
+  ABOUT: '/about',
   ADMIN: {
     DASHBOARD: '/admin',
     MOVIES: '/admin/movies',

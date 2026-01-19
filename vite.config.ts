@@ -15,4 +15,13 @@ export default defineConfig({
       '@/lib': path.resolve(__dirname, './src/lib'),
     },
   },
+  server: {
+    proxy: {
+      // Forward API calls to Spring Boot to avoid CORS in development
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+  },
 })

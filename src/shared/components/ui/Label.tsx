@@ -1,19 +1,26 @@
-import { LabelHTMLAttributes, ReactNode } from 'react'
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
-interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
-  children: ReactNode
-  required?: boolean
-}
-
-export default function Label({ children, required = false, className = '', ...props }: LabelProps) {
+const Label = React.forwardRef<
+  HTMLLabelElement,
+  React.ComponentProps<'label'> & {
+    required?: boolean
+  }
+>(({ className, required = false, children, ...props }, ref) => {
   return (
     <label
-      className={`block text-sm font-medium text-gray-700 mb-1 ${className}`}
+      ref={ref}
+      data-slot="label"
+      className={cn('block text-sm font-medium text-gray-700 mb-1', className)}
       {...props}
     >
       {children}
       {required && <span className="text-red-500 ml-1">*</span>}
     </label>
   )
-}
+})
 
+Label.displayName = 'Label'
+
+export { Label }
+export default Label

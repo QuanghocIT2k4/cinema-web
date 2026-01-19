@@ -12,7 +12,7 @@ export default function ServerError() {
         </p>
         <div className="flex gap-4 justify-center">
           <Link to="/">
-            <Button variant="primary">Về trang chủ</Button>
+            <Button variant="default">Về trang chủ</Button>
           </Link>
           <Button variant="outline" onClick={() => window.location.reload()}>
             Tải lại trang

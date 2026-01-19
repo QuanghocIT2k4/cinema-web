@@ -11,7 +11,7 @@ export default function NotFound() {
           Trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
         </p>
         <Link to="/">
-          <Button variant="primary">Về trang chủ</Button>
+          <Button variant="default">Về trang chủ</Button>
         </Link>
       </div>
     </div>

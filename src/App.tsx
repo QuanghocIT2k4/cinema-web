@@ -1,52 +1,101 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-import TestComponents from './pages/TestComponents'
-import TestMovieTicketComponents from './pages/TestMovieTicketComponents'
+import { Toaster } from 'react-hot-toast'
+import { AuthProvider } from './context/AuthContext'
+import { Layout } from './components/layout'
+import HomePage from './features/home/pages/HomePage'
 import NotFound from './shared/pages/NotFound'
+import LoginPage from './features/auth/pages/LoginPage'
+import RegisterPage from './features/auth/pages/RegisterPage'
+import MoviesPage from './features/movies/pages/MoviesPage'
+import MovieDetailPage from './features/movies/pages/MovieDetailPage'
+import AboutPage from './features/about/pages/AboutPage'
+import { ROUTES } from './shared/constants/routes'
+import ProtectedRoute from './components/ProtectedRoute'
+import AdminLayout from './features/admin/layout/AdminLayout'
+import MovieManagementPage from './features/admin/movies/pages/MovieManagementPage'
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Cinema Booking System
-              </h1>
-              <p className="text-gray-600">
-                React + TypeScript + Vite + Tailwind CSS
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Setup hoàn tất! Sẵn sàng bắt đầu code.
-              </p>
-              <div className="mt-6 space-y-3">
-                <div>
-                  <Link 
-                    to="/test-movie-ticket" 
-                    className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                  >
-                    🎬 Xem Movie Ticket Web Style (Dark Theme)
-                  </Link>
-                </div>
-                <div>
-                  <Link 
-                    to="/test-components" 
-                    className="text-blue-600 hover:text-blue-700 underline text-sm"
-                  >
-                    Test Components (Basic) →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        } />
-        <Route path="/test-components" element={<TestComponents />} />
-        <Route path="/test-movie-ticket" element={<TestMovieTicketComponents />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AuthProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1f2937',
+              color: '#fff',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
+        <Routes>
+          {/* Public routes */}
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+          {/* Public home với Layout */}
+          <Route
+            path={ROUTES.HOME}
+            element={
+              <Layout>
+                <HomePage />
+              </Layout>
+            }
+          />
+          <Route
+            path={ROUTES.MOVIES}
+            element={
+              <Layout>
+                <MoviesPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/movies/:id"
+            element={
+              <Layout>
+                <MovieDetailPage />
+              </Layout>
+            }
+          />
+          <Route
+            path={ROUTES.ABOUT}
+            element={
+              <Layout>
+                <AboutPage />
+              </Layout>
+            }
+          />
+
+          {/* Admin routes */}
+          <Route
+            path={ROUTES.ADMIN.DASHBOARD}
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="movies" element={<MovieManagementPage />} />
+          </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
 
 export default App
+
