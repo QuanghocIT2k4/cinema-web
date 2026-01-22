@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { bookingsApi } from '@/shared/api/bookings.api'
+import { showtimesApi } from '@/shared/api/showtimes.api'
+import { roomsApi } from '@/shared/api/rooms.api'
 
 interface SeatSelectorProps {
   showtimeId: string
@@ -14,28 +16,44 @@ export default function SeatSelector({
   onSeatToggle,
   onContinue,
 }: SeatSelectorProps) {
-  const { data: bookedSeats, isLoading } = useQuery({
-    queryKey: ['bookedSeats', showtimeId],
-    queryFn: () => bookingsApi.getBookedSeatsByShowtime(showtimeId),
+  // Lấy thông tin showtime để có roomId
+  const { data: showtime } = useQuery({
+    queryKey: ['showtime', showtimeId],
+    queryFn: () => showtimesApi.getById(showtimeId),
+    enabled: !!showtimeId,
   })
 
-  // Mock seat layout - trong thực tế cần fetch từ API
-  const rows = 10
-  const cols = 12
-  const seats: Array<{ id: number; row: string; col: number; isBooked: boolean }> = []
+  // Lấy danh sách ghế thực từ database theo roomId
+  const { data: seats, isLoading: isLoadingSeats } = useQuery({
+    queryKey: ['seats', 'room', showtime?.roomId],
+    queryFn: () => roomsApi.getSeatsByRoom(showtime!.roomId),
+    enabled: !!showtime?.roomId,
+  })
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const seatId = r * cols + c + 1
-      const isBooked = bookedSeats?.some((bs) => bs.seatId === seatId) || false
-      seats.push({
-        id: seatId,
-        row: String.fromCharCode(65 + r), // A, B, C...
-        col: c + 1,
-        isBooked,
+  // Lấy danh sách ghế đã được đặt cho showtime này
+  const { data: bookedSeats, isLoading: isLoadingBooked } = useQuery({
+    queryKey: ['bookedSeats', showtimeId],
+    queryFn: () => bookingsApi.getBookedSeatsByShowtime(showtimeId),
+    enabled: !!showtimeId,
+  })
+
+  const isLoading = isLoadingSeats || isLoadingBooked || !showtime
+
+  // Tạo map để check ghế đã được đặt
+  const bookedSeatIds = new Set(bookedSeats?.map((bs) => bs.seatId) || [])
+
+  // Sắp xếp seats theo row và col để hiển thị đúng layout
+  const sortedSeats = seats
+    ? [...seats].sort((a, b) => {
+        if (a.row !== b.row) {
+          return a.row.localeCompare(b.row)
+        }
+        return a.col - b.col
       })
-    }
-  }
+    : []
+
+  // Tính số hàng từ dữ liệu thực
+  const rows = showtime ? new Set(sortedSeats.map((s) => s.row)).size : 0
 
   if (isLoading) {
     return (
@@ -68,33 +86,37 @@ export default function SeatSelector({
         <div className="inline-block bg-gray-700 px-4 py-2 rounded text-white text-sm">Screen</div>
       </div>
       <div className="space-y-2">
-        {Array.from({ length: rows }, (_, r) => (
-          <div key={r} className="flex items-center gap-2">
-            <div className="w-8 text-gray-400 text-sm">{String.fromCharCode(65 + r)}</div>
-            <div className="flex gap-1">
-              {Array.from({ length: cols }, (_, c) => {
-                const seat = seats[r * cols + c]
-                const isSelected = selectedSeats.includes(seat.id)
-                return (
-                  <button
-                    key={c}
-                    onClick={() => !seat.isBooked && onSeatToggle(seat.id)}
-                    disabled={seat.isBooked}
-                    className={`w-8 h-8 rounded text-xs font-semibold transition-colors ${
-                      seat.isBooked
-                        ? 'bg-red-600 cursor-not-allowed'
-                        : isSelected
-                          ? 'bg-[#fe7e32] text-white'
-                          : 'bg-gray-600 hover:bg-gray-500 text-white'
-                    }`}
-                  >
-                    {seat.col}
-                  </button>
-                )
-              })}
+        {Array.from({ length: rows }, (_, r) => {
+          const rowLetter = String.fromCharCode(65 + r)
+          const rowSeats = sortedSeats.filter((s) => s.row === rowLetter)
+          return (
+            <div key={r} className="flex items-center gap-2">
+              <div className="w-8 text-gray-400 text-sm">{rowLetter}</div>
+              <div className="flex gap-1">
+                {rowSeats.map((seat) => {
+                  const isBooked = bookedSeatIds.has(seat.id)
+                  const isSelected = selectedSeats.includes(seat.id)
+                  return (
+                    <button
+                      key={seat.id}
+                      onClick={() => !isBooked && onSeatToggle(seat.id)}
+                      disabled={isBooked}
+                      className={`w-8 h-8 rounded text-xs font-semibold transition-colors ${
+                        isBooked
+                          ? 'bg-red-600 cursor-not-allowed'
+                          : isSelected
+                            ? 'bg-[#fe7e32] text-white'
+                            : 'bg-gray-600 hover:bg-gray-500 text-white'
+                      }`}
+                    >
+                      {seat.col}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
       {selectedSeats.length > 0 && (
         <div className="mt-6 flex justify-end">

@@ -9,7 +9,7 @@ export const useMovieDetail = (id: number | string | null) => {
     queryKey: ['movie', id],
     queryFn: () => moviesApi.getMovieDetail(id!),
     enabled: !!id, // Chỉ fetch khi có ID
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 phút
   })
 }
 

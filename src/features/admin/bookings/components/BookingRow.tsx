@@ -43,6 +43,12 @@ export default function BookingRow({
     <tr className="border-b border-gray-700 hover:bg-gray-800/50 transition-colors">
       <td className="px-4 py-3 text-sm text-gray-300">{booking.bookingCode}</td>
       <td className="px-4 py-3 text-sm text-gray-300">
+        <div className="flex flex-col">
+          <span className="font-medium text-white">{booking.user?.fullName || '-'}</span>
+          <span className="text-xs text-gray-400">{booking.user?.email || '-'}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3 text-sm text-gray-300">
         {booking.showtime?.movieTitle || '-'}
       </td>
       <td className="px-4 py-3 text-sm text-gray-300">
@@ -77,7 +83,7 @@ export default function BookingRow({
               Confirm
             </button>
           )}
-          {booking.status !== BookingStatus.CANCELLED && (
+          {booking.status !== BookingStatus.CANCELLED && booking.status !== BookingStatus.PAID && (
             <button
               onClick={() => onCancel(booking)}
               disabled={isCancelling}

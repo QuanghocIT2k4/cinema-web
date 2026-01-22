@@ -11,10 +11,11 @@ export default function BookingHeader() {
           className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Quay lại danh sách phim</span>
+          <span>Back to movie list</span>
         </Link>
       </div>
     </div>
   )
 }
+
 

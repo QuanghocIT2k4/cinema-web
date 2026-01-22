@@ -1,6 +1,7 @@
 import { apiClient } from './api-client'
 import { API_ENDPOINTS } from '../constants/api'
 import type { Room, SpringPage } from '../types/room.types'
+import type { Seat } from '../types/seat.types'
 
 export const roomsApi = {
   list: async (params: { page: number; size: number }): Promise<SpringPage<Room>> => {
@@ -10,6 +11,11 @@ export const roomsApi = {
 
   byCinema: async (cinemaId: number | string): Promise<Room[]> => {
     const res = await apiClient.get<Room[]>(API_ENDPOINTS.ROOMS.BY_CINEMA(cinemaId))
+    return res.data
+  },
+
+  getSeatsByRoom: async (roomId: number | string): Promise<Seat[]> => {
+    const res = await apiClient.get<Seat[]>(API_ENDPOINTS.ROOMS.SEATS(roomId))
     return res.data
   },
 

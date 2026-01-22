@@ -6,15 +6,15 @@ import { Link } from 'react-router-dom'
 const missionData = [
   {
     icon: Target,
-    text: 'Cống hiến vào sự phát triển của điện ảnh và giải trí tại Việt Nam.',
+    text: 'Dedicated to the development of cinema and entertainment in Vietnam.',
   },
   {
     icon: Globe,
-    text: 'Mang lại dịch vụ tốt với mức giá phù hợp, tiếp cận mọi khách hàng.',
+    text: 'Deliver quality service at affordable prices, accessible to all customers.',
   },
   {
     icon: Building,
-    text: 'Kết nối văn hoá điện ảnh Việt Nam với bạn bè quốc tế.',
+    text: 'Connect Vietnamese cinema culture with international friends.',
   },
 ]
 
@@ -39,7 +39,7 @@ const AboutPage: React.FC = () => {
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mt-3">About CineTECH</h1>
           <p className="text-lg text-gray-300 mt-2 max-w-3xl">
-            Câu chuyện, sứ mệnh và cam kết mang đến trải nghiệm điện ảnh tốt nhất.
+            Our story, mission, and commitment to delivering the best cinema experience.
           </p>
         </div>
       </div>
@@ -49,14 +49,14 @@ const AboutPage: React.FC = () => {
           {/* Intro */}
           <section className="grid md:grid-cols-2 gap-10 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-4">Rạp chiếu phim được yêu thích</h2>
+              <h2 className="text-3xl font-bold mb-4">Beloved Cinema</h2>
               <p className="text-gray-300 mb-4">
-                CineTECH hướng tới trở thành điểm đến giải trí trọn vẹn cho mọi gia đình Việt, kết hợp
-                mô hình chiếu phim, ẩm thực và trải nghiệm công nghệ.
+                CineTECH aims to become a complete entertainment destination for every Vietnamese family, combining
+                cinema, dining, and technology experiences.
               </p>
               <p className="text-gray-300">
-                Chúng tôi đồng hành cùng điện ảnh Việt Nam, song song cập nhật các bom tấn quốc tế, mang
-                đến dịch vụ thân thiện, giá tốt và không ngừng cải tiến chất lượng phục vụ.
+                We accompany Vietnamese cinema while updating international blockbusters, delivering
+                friendly service, great prices, and continuously improving service quality.
               </p>
             </div>
             <div className="h-72 md:h-80 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
@@ -70,7 +70,7 @@ const AboutPage: React.FC = () => {
 
           {/* Mission */}
           <section>
-            <h2 className="text-3xl font-bold text-center mb-10">Sứ mệnh của chúng tôi</h2>
+            <h2 className="text-3xl font-bold text-center mb-10">Our Mission</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {missionData.map((item, idx) => (
                 <div
@@ -88,7 +88,7 @@ const AboutPage: React.FC = () => {
 
           {/* Theaters */}
           <section>
-            <h2 className="text-3xl font-bold text-center mb-10">Hệ thống rạp</h2>
+            <h2 className="text-3xl font-bold text-center mb-10">Cinema System</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {branches.map((branch) => (
                 <div
@@ -117,8 +117,8 @@ const AboutPage: React.FC = () => {
           <section className="bg-[#242b3d] rounded-2xl border border-white/10 overflow-hidden">
             <div className="grid md:grid-cols-2 items-center">
               <div className="p-10">
-                <h2 className="text-3xl font-bold">Trụ sở chính</h2>
-                <p className="text-gray-400 mt-2 mb-6">Liên hệ với văn phòng của chúng tôi.</p>
+                <h2 className="text-3xl font-bold">Headquarters</h2>
+                <p className="text-gray-400 mt-2 mb-6">Contact our office.</p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Phone className="w-5 h-5 text-[#fe7e32]" />

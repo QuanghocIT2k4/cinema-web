@@ -9,7 +9,7 @@ export const useMovies = (params?: MoviesParams) => {
   return useQuery({
     queryKey: ['movies', params],
     queryFn: () => moviesApi.getMovies(params),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 phút
   })
 }
 

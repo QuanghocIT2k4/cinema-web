@@ -1,6 +1,6 @@
-// Movie types matching backend entity
-// NOTE: Project tsconfig enables `erasableSyntaxOnly`, so we avoid TS `enum` (runtime emit).
-// Use const + union type instead.
+// Kiểu Movie tương ứng với entity ở backend
+// LƯU Ý: tsconfig của project bật `erasableSyntaxOnly`, nên tránh dùng TS `enum` (có sinh mã runtime).
+// Thay vào đó sử dụng const object + union type.
 export const MovieStatus = {
   NOW_SHOWING: 'NOW_SHOWING',
   COMING_SOON: 'COMING_SOON',
@@ -14,13 +14,13 @@ export interface Movie {
   title: string
   description: string
   genre: string
-  duration: number // in minutes
-  releaseDate: string // ISO date string
-  endDate: string // ISO date string
+  duration: number // đơn vị: phút
+  releaseDate: string // chuỗi ngày ISO
+  endDate: string // chuỗi ngày ISO
   status: MovieStatus
   ageRating: string
-  poster: string // URL
-  trailer: string // URL
+  poster: string // đường dẫn URL poster
+  trailer: string // đường dẫn URL trailer
   createdAt?: string
   updatedAt?: string
 }

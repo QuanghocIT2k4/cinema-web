@@ -11,6 +11,7 @@ import MovieDetailPage from './features/movies/pages/MovieDetailPage'
 import AboutPage from './features/about/pages/AboutPage'
 import BookingPage from './features/booking/pages/BookingPage'
 import ProfilePage from './features/profile/pages/ProfilePage'
+import BookingHistoryPage from './features/profile/pages/BookingHistoryPage'
 import { ROUTES } from './shared/constants/routes'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './features/admin/layout/AdminLayout'
@@ -90,6 +91,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ProfilePage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.BOOKING_HISTORY}
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <BookingHistoryPage />
                 </Layout>
               </ProtectedRoute>
             }

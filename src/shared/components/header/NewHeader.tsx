@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronDown, Info, LogOut, MapPin, Popcorn, User } from 'lucide-react'
+import { ChevronDown, Info, LogOut, MapPin, Popcorn, User, Ticket } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/context/AuthContext'
 import { ROUTES } from '@/shared/constants/routes'
@@ -117,6 +117,13 @@ const NewHeader: React.FC = () => {
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <User className="w-4 h-4" /> Profile
+                      </Link>
+                      <Link
+                        to={ROUTES.BOOKING_HISTORY}
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-[#1a2232] hover:text-white"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <Ticket className="w-4 h-4" /> Booking History
                       </Link>
                       {user?.role === 'ADMIN' && (
                         <Link

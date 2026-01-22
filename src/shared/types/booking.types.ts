@@ -12,9 +12,15 @@ export interface BookedSeat {
   seatId: number
 }
 
+export interface RefreshmentOrder {
+  refreshmentId: number
+  quantity: number
+}
+
 export interface CreateBookingRequest {
   showtimeId: string
   seatIds: number[]
+  refreshments?: RefreshmentOrder[]
 }
 
 export interface Booking {
@@ -23,6 +29,11 @@ export interface Booking {
   status: BookingStatus
   totalPrice: number
   createdAt?: string
+  user?: {
+    id?: number
+    email?: string
+    fullName?: string
+  }
   showtime?: {
     movieTitle?: string
     cinemaName?: string
@@ -43,8 +54,14 @@ export interface BookingsParams {
   search?: string
 }
 
+// Spring Page format
 export interface BookingsResponse {
   content: Booking[]
   totalPages: number
   totalElements: number
+  number: number // current page (0-based)
+  size: number // page size
+  first?: boolean
+  last?: boolean
+  numberOfElements?: number
 }

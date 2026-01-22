@@ -3,7 +3,8 @@ import { useMovies } from '../hooks/useMovies'
 import { useCreateMovie } from '../hooks/useCreateMovie'
 import { useUpdateMovie } from '../hooks/useUpdateMovie'
 import { useDeleteMovie } from '../hooks/useDeleteMovie'
-import { MoviesFilters, MoviesTable, MoviesPagination, MovieFormModal } from './index'
+import { MoviesFilters, MoviesTable, MoviesPagination, MovieFormModal, DeleteMovieModal } from './index'
+import ConfirmModal from '@/shared/components/ConfirmModal'
 import type { Movie, MovieFormData } from '@/shared/types/movie.types'
 import { MovieStatus } from '@/shared/types/movie.types'
 
@@ -15,6 +16,10 @@ export default function MovieManagement() {
   const [search, setSearch] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null)
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; movie: Movie | null }>({
+    isOpen: false,
+    movie: null,
+  })
 
   const { data, isLoading, error } = useMovies({
     page,
@@ -47,9 +52,14 @@ export default function MovieManagement() {
   }
 
   const handleDelete = (movie: Movie) => {
-    if (confirm(`Are you sure you want to delete the movie "${movie.title}"?`)) {
-      deleteMovie.mutate(movie.id)
+    setDeleteModal({ isOpen: true, movie })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteModal.movie) {
+      deleteMovie.mutate(deleteModal.movie.id)
     }
+    setDeleteModal({ isOpen: false, movie: null })
   }
 
   const handleSubmit = (formData: MovieFormData) => {
@@ -110,6 +120,14 @@ export default function MovieManagement() {
         movie={editingMovie}
         onSubmit={handleSubmit}
         isLoading={createMovie.isPending || updateMovie.isPending}
+      />
+
+      <DeleteMovieModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, movie: null })}
+        onConfirm={handleConfirmDelete}
+        movieTitle={deleteModal.movie?.title || ''}
+        isLoading={deleteMovie.isPending}
       />
     </div>
   )

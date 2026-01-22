@@ -11,7 +11,7 @@ interface ShowtimesSectionProps {
 }
 
 export default function ShowtimesSection({ showtimes, isLoading, isError }: ShowtimesSectionProps) {
-  // Group showtimes by date and cinema
+  // Nhóm các suất chiếu theo ngày và rạp
   const groupedShowtimes = useMemo(() => {
     if (!showtimes.length) return {}
 
@@ -30,7 +30,7 @@ export default function ShowtimesSection({ showtimes, isLoading, isError }: Show
       grouped[dateKey][cinemaKey].push(showtime)
     })
 
-    // Sort showtimes within each group
+    // Sắp xếp các suất chiếu trong từng nhóm theo thời gian bắt đầu
     Object.keys(grouped).forEach((dateKey) => {
       Object.keys(grouped[dateKey]).forEach((cinemaKey) => {
         grouped[dateKey][cinemaKey].sort(

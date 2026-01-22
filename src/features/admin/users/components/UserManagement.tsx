@@ -5,6 +5,7 @@ import { UsersTable, UserFormModal, UsersPagination } from './index'
 import type { UserResponse } from '@/shared/types/auth.types'
 import type { UserRequest } from '@/shared/types/user.types'
 import { toast } from 'react-hot-toast'
+import ConfirmModal from '@/shared/components/ConfirmModal'
 
 const PAGE_SIZE = 10
 
@@ -95,10 +96,20 @@ export default function UserManagement() {
     setIsModalOpen(true)
   }
 
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; user: UserResponse | null }>({
+    isOpen: false,
+    user: null,
+  })
+
   const handleDelete = (user: UserResponse) => {
-    if (confirm(`Are you sure you want to delete user "${user.email}"?`)) {
-      deleteMutation.mutate(user.id)
+    setDeleteModal({ isOpen: true, user })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteModal.user) {
+      deleteMutation.mutate(deleteModal.user.id)
     }
+    setDeleteModal({ isOpen: false, user: null })
   }
 
   const handleCloseModal = () => {
@@ -153,6 +164,17 @@ export default function UserManagement() {
         isLoading={saveMutation.isPending}
         onFormChange={handleFormChange}
         onSubmit={handleSubmit}
+      />
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        title="Delete User"
+        message={`Are you sure you want to delete user "${deleteModal.user?.email}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteModal({ isOpen: false, user: null })}
       />
     </div>
   )

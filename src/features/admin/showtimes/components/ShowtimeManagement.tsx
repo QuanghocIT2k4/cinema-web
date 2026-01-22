@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { showtimesApi, type ShowtimePage } from '@/shared/api/showtimes.api'
 import { moviesApi } from '@/shared/api/movies.api'
 import { cinemasApi } from '@/shared/api/cinemas.api'
 import { roomsApi } from '@/shared/api/rooms.api'
 import type { Showtime } from '@/shared/types/showtime.types'
+import { MovieStatus } from '@/shared/types/movie.types'
 import { toast } from 'react-hot-toast'
+import ConfirmModal from '@/shared/components/ConfirmModal'
 import { ShowtimesTable, ShowtimesPagination, ShowtimeFormModal } from './index'
 
 const PAGE_SIZE = 10
@@ -14,12 +16,15 @@ export default function ShowtimeManagement() {
   const [page, setPage] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingShowtime, setEditingShowtime] = useState<Showtime | null>(null)
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; showtime: Showtime | null }>({
+    isOpen: false,
+    showtime: null,
+  })
   const [form, setForm] = useState({
     movieId: '' as number | '',
     cinemaId: '' as number | '',
     roomId: '' as number | '',
     startTime: '',
-    endTime: '',
     price: 50000,
   })
   const queryClient = useQueryClient()
@@ -34,6 +39,26 @@ export default function ShowtimeManagement() {
     queryFn: () => moviesApi.getMovies({ page: 0, size: 100 }),
   })
 
+  // Lọc phim chỉ hiển thị trạng thái NOW_SHOWING và COMING_SOON (loại ENDED)
+  // Khi chỉnh sửa, vẫn thêm phim đang được chọn kể cả khi phim đã ENDED
+  const availableMovies = useMemo(() => {
+    if (!moviesData?.content) return []
+    const filtered = moviesData.content.filter(
+      (movie) => movie.status === MovieStatus.NOW_SHOWING || movie.status === MovieStatus.COMING_SOON
+    )
+    // Nếu đang chỉnh sửa và phim hiện tại có trạng thái ENDED thì vẫn thêm vào danh sách
+    if (editingShowtime && form.movieId) {
+      const selectedMovie = moviesData.content.find((m) => m.id === form.movieId)
+      if (selectedMovie && selectedMovie.status === MovieStatus.ENDED) {
+        // Kiểm tra nếu phim chưa tồn tại trong danh sách đã lọc thì mới thêm vào
+        if (!filtered.find((m) => m.id === selectedMovie.id)) {
+          return [...filtered, selectedMovie]
+        }
+      }
+    }
+    return filtered
+  }, [moviesData, editingShowtime, form.movieId])
+
   const { data: cinemasData } = useQuery({
     queryKey: ['cinemas'],
     queryFn: () => cinemasApi.list(),
@@ -46,7 +71,7 @@ export default function ShowtimeManagement() {
   })
 
   const saveMutation = useMutation({
-    mutationFn: (showtimeData: { movieId: number; roomId: number; startTime: string; endTime: string; price: number }) => {
+    mutationFn: (showtimeData: { movieId: number; roomId: number; startTime: string; price: number }) => {
       if (editingShowtime) {
         return showtimesApi.update(editingShowtime.id, showtimeData)
       }
@@ -80,7 +105,6 @@ export default function ShowtimeManagement() {
         cinemaId: editingShowtime.cinemaId || '',
         roomId: editingShowtime.roomId || '',
         startTime: editingShowtime.startTime ? new Date(editingShowtime.startTime).toISOString().slice(0, 16) : '',
-        endTime: editingShowtime.endTime ? new Date(editingShowtime.endTime).toISOString().slice(0, 16) : '',
         price: editingShowtime.price || 50000,
       })
     } else {
@@ -89,7 +113,6 @@ export default function ShowtimeManagement() {
         cinemaId: '',
         roomId: '',
         startTime: '',
-        endTime: '',
         price: 50000,
       })
     }
@@ -101,9 +124,14 @@ export default function ShowtimeManagement() {
   }
 
   const handleDelete = (showtime: Showtime) => {
-    if (confirm('Are you sure you want to delete this showtime?')) {
-      deleteMutation.mutate(showtime.id)
+    setDeleteModal({ isOpen: true, showtime })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteModal.showtime) {
+      deleteMutation.mutate(deleteModal.showtime.id)
     }
+    setDeleteModal({ isOpen: false, showtime: null })
   }
 
   const handleCloseModal = () => {
@@ -116,15 +144,22 @@ export default function ShowtimeManagement() {
   }
 
   const handleSubmit = () => {
-    if (!form.movieId || !form.roomId || !form.startTime || !form.endTime) {
+    if (!form.movieId || !form.roomId || !form.startTime) {
       toast.error('Please fill in all required fields')
       return
     }
+
+    // Kiểm tra để đảm bảo phim được chọn không có trạng thái ENDED
+    const selectedMovie = moviesData?.content?.find((m) => m.id === form.movieId)
+    if (selectedMovie && selectedMovie.status === MovieStatus.ENDED) {
+      toast.error('Cannot create showtime for a movie that has ended')
+      return
+    }
+
     saveMutation.mutate({
       movieId: form.movieId as number,
       roomId: form.roomId as number,
       startTime: form.startTime,
-      endTime: form.endTime,
       price: form.price,
     })
   }
@@ -165,12 +200,23 @@ export default function ShowtimeManagement() {
         onClose={handleCloseModal}
         editing={editingShowtime}
         form={form}
-        movies={moviesData?.content || []}
+        movies={availableMovies}
         cinemas={cinemasData || []}
         rooms={roomsData || []}
         isLoading={saveMutation.isPending}
         onFormChange={handleFormChange}
         onSubmit={handleSubmit}
+      />
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        title="Delete Showtime"
+        message="Are you sure you want to delete this showtime? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteModal({ isOpen: false, showtime: null })}
       />
     </div>
   )

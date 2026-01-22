@@ -11,7 +11,6 @@ interface ShowtimeFormModalProps {
     cinemaId: number | ''
     roomId: number | ''
     startTime: string
-    endTime: string
     price: number
   }
   movies: Movie[]
@@ -111,15 +110,6 @@ export default function ShowtimeFormModal({
                 type="datetime-local"
                 value={form.startTime}
                 onChange={(e) => onFormChange('startTime', e.target.value)}
-                className="mt-1 w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-gray-300">End time</label>
-              <input
-                type="datetime-local"
-                value={form.endTime}
-                onChange={(e) => onFormChange('endTime', e.target.value)}
                 className="mt-1 w-full rounded-lg bg-gray-900 border border-gray-700 px-3 py-2 text-white"
               />
             </div>

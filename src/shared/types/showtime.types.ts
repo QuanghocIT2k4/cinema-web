@@ -6,9 +6,9 @@ export interface Showtime {
   roomNumber: string
   cinemaId: number
   cinemaName: string
-  startTime: string // ISO
-  endTime: string // ISO
-  price: number // backend BigDecimal -> number
+  startTime: string // chuỗi thời gian ISO
+  endTime: string // chuỗi thời gian ISO
+  price: number // backend BigDecimal → number trên FE
   createdAt?: string
   updatedAt?: string
 }

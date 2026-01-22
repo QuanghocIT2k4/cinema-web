@@ -25,9 +25,9 @@ const promotions = [
 ]
 
 const contactItems = [
-  { id: 'c1', title: 'Hỗ trợ khách hàng', desc: '1900 1000 (08:00-22:00)' },
+  { id: 'c1', title: 'Customer Support', desc: '1900 1000 (08:00-22:00)' },
   { id: 'c2', title: 'Email', desc: 'support@cinestech.vn' },
-  { id: 'c3', title: 'Đối tác & phòng vé', desc: 'partner@cinestech.vn' },
+  { id: 'c3', title: 'Partners & Box Office', desc: 'partner@cinestech.vn' },
 ]
 
 const qrImage =

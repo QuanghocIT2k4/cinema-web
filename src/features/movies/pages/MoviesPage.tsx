@@ -45,9 +45,9 @@ const MoviesPage: React.FC = () => {
     <div className="min-h-screen bg-[#0b1220]">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div className="space-y-1">
-          <p className="text-sm text-gray-400">Trang 6 - Movies</p>
+          <p className="text-sm text-gray-400">Page 6 - Movies</p>
           <h1 className="text-3xl lg:text-4xl font-bold text-white">Movies</h1>
-          <p className="text-gray-400">Bộ sưu tập phim đang chiếu và sắp chiếu.</p>
+          <p className="text-gray-400">Collection of movies currently showing and coming soon.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

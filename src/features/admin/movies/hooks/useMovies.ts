@@ -9,7 +9,7 @@ export const useMovies = (params: MoviesParams = {}) => {
             const response = await apiClient.get<MoviesResponse>('/api/movies', { params })
             return response.data
         },
-        placeholderData: (prev) => prev, // keep previous data to avoid flicker during refetch
-        staleTime: 5 * 60 * 1000 // 5 minutes
+        placeholderData: (prev) => prev, // giữ lại dữ liệu cũ để tránh nhấp nháy khi refetch
+        staleTime: 5 * 60 * 1000 // 5 phút
     })
 }

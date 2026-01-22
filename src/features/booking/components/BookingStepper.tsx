@@ -4,9 +4,10 @@ interface BookingStepperProps {
 
 export default function BookingStepper({ currentStep }: BookingStepperProps) {
   const steps = [
-    { number: 1, label: 'Chọn suất chiếu' },
-    { number: 2, label: 'Chọn ghế' },
-    { number: 3, label: 'Xác nhận' },
+    { number: 1, label: 'Choose showtime' },
+    { number: 2, label: 'Choose seats' },
+    { number: 3, label: 'Choose refreshment' },
+    { number: 4, label: 'Confirm' },
   ]
 
   return (
@@ -45,4 +46,5 @@ export default function BookingStepper({ currentStep }: BookingStepperProps) {
     </div>
   )
 }
+
 

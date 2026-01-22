@@ -5,6 +5,7 @@ import { cinemasApi } from '@/shared/api/cinemas.api'
 import { RoomsTable, RoomFormModal, RoomsPagination, RoomsFilter } from './index'
 import type { Room } from '@/shared/types/room.types'
 import { toast } from 'react-hot-toast'
+import ConfirmModal from '@/shared/components/ConfirmModal'
 
 const PAGE_SIZE = 10
 
@@ -91,10 +92,20 @@ export default function RoomManagement() {
     setIsModalOpen(true)
   }
 
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; room: Room | null }>({
+    isOpen: false,
+    room: null,
+  })
+
   const handleDelete = (room: Room) => {
-    if (confirm(`Are you sure you want to delete room "${room.roomNumber}"?`)) {
-      deleteMutation.mutate(room.id)
+    setDeleteModal({ isOpen: true, room })
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteModal.room) {
+      deleteMutation.mutate(deleteModal.room.id)
     }
+    setDeleteModal({ isOpen: false, room: null })
   }
 
   const handleCloseModal = () => {
@@ -156,6 +167,17 @@ export default function RoomManagement() {
         isLoading={saveMutation.isPending}
         onFormChange={handleFormChange}
         onSubmit={handleSubmit}
+      />
+
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        title="Delete Room"
+        message={`Are you sure you want to delete room "${deleteModal.room?.roomNumber}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteModal({ isOpen: false, room: null })}
       />
     </div>
   )

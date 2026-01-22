@@ -11,6 +11,11 @@ export interface ShowtimePage {
 }
 
 export const showtimesApi = {
+  getById: async (id: number | string): Promise<Showtime> => {
+    const res = await apiClient.get<Showtime>(API_ENDPOINTS.SHOWTIMES.BY_ID(id))
+    return res.data
+  },
+
   getByDate: async (date: string): Promise<Showtime[]> => {
     const res = await apiClient.get<Showtime[]>(API_ENDPOINTS.SHOWTIMES.BY_DATE(date))
     return res.data
@@ -30,7 +35,7 @@ export const showtimesApi = {
     movieId: number
     roomId: number
     startTime: string
-    endTime: string
+    endTime?: string
     price: number
   }): Promise<Showtime> => {
     const res = await apiClient.post<Showtime>(API_ENDPOINTS.SHOWTIMES.LIST, payload)
@@ -43,7 +48,7 @@ export const showtimesApi = {
       movieId: number
       roomId: number
       startTime: string
-      endTime: string
+      endTime?: string
       price: number
     },
   ): Promise<Showtime> => {

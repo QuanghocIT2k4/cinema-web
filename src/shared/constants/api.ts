@@ -1,4 +1,4 @@
-// API endpoints constants
+// Các hằng số định nghĩa endpoint của API
 
 export const API_ENDPOINTS = {
   AUTH: {
@@ -16,8 +16,9 @@ export const API_ENDPOINTS = {
   },
   SHOWTIMES: {
     LIST: '/api/showtimes',
+    BY_ID: (id: number | string) => `/api/showtimes/${id}`,
     BY_MOVIE: (movieId: number | string) => `/api/showtimes/movie/${movieId}`,
-    BY_DATE: (date: string) => `/api/showtimes/date/${date}`, // yyyy-MM-dd
+    BY_DATE: (date: string) => `/api/showtimes/date/${date}`, // định dạng ngày: yyyy-MM-dd
   },
   BOOKINGS: {
     LIST: '/api/bookings',
@@ -35,6 +36,7 @@ export const API_ENDPOINTS = {
     LIST: '/api/rooms',
     BY_CINEMA: (cinemaId: number | string) => `/api/rooms/cinema/${cinemaId}`,
     DETAIL: (id: number | string) => `/api/rooms/${id}`,
+    SEATS: (id: number | string) => `/api/rooms/${id}/seats`,
     CREATE: '/api/rooms',
     UPDATE: (id: number | string) => `/api/rooms/${id}`,
     DELETE: (id: number | string) => `/api/rooms/${id}`,
@@ -45,5 +47,9 @@ export const API_ENDPOINTS = {
     CREATE: '/api/users',
     UPDATE: (id: number | string) => `/api/users/${id}`,
     DELETE: (id: number | string) => `/api/users/${id}`,
+  },
+  REFRESHMENTS: {
+    LIST: '/api/refreshments',
+    CREATE: '/api/refreshments',
   },
 } as const
