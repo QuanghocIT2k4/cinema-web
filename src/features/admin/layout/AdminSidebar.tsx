@@ -5,7 +5,8 @@ import {
     Building2,
     DoorOpen,
     Calendar,
-    Ticket
+    Ticket,
+    Users
 } from 'lucide-react'
 import { ROUTES } from '../../../shared/constants/routes'
 
@@ -40,6 +41,11 @@ const AdminSidebar = () => {
             name: 'Bookings',
             path: '/admin/bookings',
             icon: Ticket
+        },
+        {
+            name: 'Users',
+            path: ROUTES.ADMIN.USERS,
+            icon: Users
         }
     ]
 

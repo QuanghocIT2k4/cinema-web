@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '@/shared/api/auth.api'
 import { setToken, getToken, removeToken, isValidToken, decodeToken } from '@/shared/utils/jwt'
 import type { LoginRequest, RegisterRequest, UserResponse, AuthResponse } from '@/shared/types/auth.types'
+import { toast } from 'react-hot-toast'
 
 /**
  * AuthContextType: Định nghĩa interface cho AuthContext
@@ -16,6 +17,7 @@ interface AuthContextType {
   login: (data: LoginRequest) => Promise<void>      // Function đăng nhập
   register: (data: RegisterRequest) => Promise<void> // Function đăng ký
   logout: () => void                  // Function đăng xuất
+  setUserProfile: (u: UserResponse) => void          // Cập nhật profile trong context
 }
 
 /**
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true)  // true khi đang kiểm tra token lúc app khởi động
 
   const navigate = useNavigate()
+  const [logoutTimerId, setLogoutTimerId] = useState<number | null>(null)
 
   /**
    * useEffect: Tự động khôi phục auth state từ localStorage khi app khởi động
@@ -93,6 +96,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])  // Chạy 1 lần duy nhất khi component mount
 
   /**
+   * Auto logout khi token hết hạn (dựa trên exp trong JWT).
+   * - Khi token thay đổi: clear timer cũ, set timer mới theo exp.
+   */
+  useEffect(() => {
+    // Clear timer cũ nếu có
+    if (logoutTimerId) {
+      window.clearTimeout(logoutTimerId)
+      setLogoutTimerId(null)
+    }
+
+    if (!token) return
+
+    const decoded = decodeToken(token)
+    const exp = decoded?.exp as number | undefined // exp là unix timestamp (giây)
+    if (!exp) return
+
+    const msUntilExp = exp * 1000 - Date.now()
+
+    // Nếu đã hết hạn → logout ngay
+    if (msUntilExp <= 0) {
+      removeToken()
+      setTokenState(null)
+      setUser(null)
+      navigate('/login')
+      return
+    }
+
+    // Set timer logout (trừ 1s để tránh lệch thời gian)
+    const id = window.setTimeout(() => {
+      removeToken()
+      setTokenState(null)
+      setUser(null)
+      navigate('/login')
+    }, Math.max(0, msUntilExp - 1000))
+
+    setLogoutTimerId(id)
+
+    return () => {
+      window.clearTimeout(id)
+    }
+  }, [token]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /**
    * Login function: Đăng nhập user
    * 1. Gọi API login
    * 2. Lưu token vào localStorage
@@ -118,9 +164,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         updatedAt: new Date().toISOString(), // Tạm thời, sẽ lấy từ API sau
       } as UserResponse)
       
+      // Toast thành công
+      toast.success('Đăng nhập thành công!')
+      
       // Redirect về trang chủ
       navigate('/')
     } catch (error) {
+      // Toast lỗi
+      const message = (error as any)?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
+      toast.error(message)
       // Re-throw error để component có thể xử lý
       throw error
     }
@@ -136,11 +188,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Gọi API register
       await authApi.register(data)
       
+      // Toast thành công
+      toast.success('Đăng ký thành công! Vui lòng đăng nhập.')
+      
       // Sau khi đăng ký thành công, redirect về login
       navigate('/login', { 
         state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } 
       })
     } catch (error) {
+      // Toast lỗi
+      const message = (error as any)?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.'
+      toast.error(message)
       // Re-throw error để component có thể xử lý
       throw error
     }
@@ -153,6 +211,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * 3. Redirect về trang login
    */
   const logout = (): void => {
+    // Clear timer auto logout nếu có
+    if (logoutTimerId) {
+      window.clearTimeout(logoutTimerId)
+      setLogoutTimerId(null)
+    }
+
     // Xóa token khỏi localStorage
     removeToken()
     
@@ -164,6 +228,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     navigate('/login')
   }
 
+  const setUserProfile = (u: UserResponse) => {
+    setUser(u)
+  }
+
   // Giá trị cung cấp cho Context
   const value: AuthContextType = {
     user,
@@ -173,6 +241,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
+    setUserProfile,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

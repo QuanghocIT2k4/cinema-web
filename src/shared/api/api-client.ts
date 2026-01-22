@@ -8,12 +8,19 @@ function normalizeBaseUrl(url: string) {
 }
 
 function resolveBaseUrl() {
-  // Best DX in development: use relative `/api/...` and rely on Vite proxy.
+  // Development: use relative `/api/...` and rely on Vite proxy.
   if (import.meta.env.DEV) return ''
 
+  // Production: use VITE_API_BASE_URL from environment variable (set on Vercel)
   const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) || ''
   const normalized = normalizeBaseUrl(envUrl)
-  return normalized || 'http://localhost:8080'
+  
+  // Fallback: nếu không có env var, dùng localhost (chỉ để dev, production sẽ fail nếu không set)
+  if (!normalized && import.meta.env.PROD) {
+    console.warn('⚠️ VITE_API_BASE_URL is not set! API calls will fail in production.')
+  }
+  
+  return normalized || (import.meta.env.PROD ? '' : 'http://localhost:8080')
 }
 
 // Tạo axios instance với cấu hình mặc định

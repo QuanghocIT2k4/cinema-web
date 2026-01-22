@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -34,10 +35,14 @@ export default function RegisterPage() {
   const { register: registerUser, isAuthenticated } = useAuth() // AuthContext: lấy register function và isAuthenticated
 
   // Nếu đã đăng nhập, redirect về trang chủ
-  if (isAuthenticated) {
-    navigate(ROUTES.HOME, { replace: true })
-    return null
-  }
+  // IMPORTANT: redirect trong useEffect để tránh navigate trong render (có thể gây loop/đơ UI)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(ROUTES.HOME, { replace: true })
+    }
+  }, [isAuthenticated, navigate])
+
+  if (isAuthenticated) return null
 
   const {
     register, // React Hook Form: đăng ký input với form

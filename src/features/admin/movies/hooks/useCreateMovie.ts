@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import apiClient from '../../../../services/api'
-import type { MovieFormData, Movie } from '../../../../shared/types/movie.types'
+import { apiClient } from '@/shared/api/api-client'
+import type { MovieFormData, Movie } from '@/shared/types/movie.types'
 import { toast } from 'react-hot-toast'
 
 export const useCreateMovie = () => {
@@ -8,7 +8,7 @@ export const useCreateMovie = () => {
 
     return useMutation<Movie, Error, MovieFormData>({
         mutationFn: async (data: MovieFormData) => {
-            const response = await apiClient.post<Movie>('/movies', data)
+            const response = await apiClient.post<Movie>('/api/movies', data)
             return response.data
         },
         onSuccess: () => {

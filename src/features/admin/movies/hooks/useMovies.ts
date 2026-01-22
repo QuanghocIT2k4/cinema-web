@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
-import apiClient from '../../../../services/api'
-import type { MoviesParams, MoviesResponse } from '../../../../shared/types/movie.types'
+import { apiClient } from '@/shared/api/api-client'
+import type { MoviesParams, MoviesResponse } from '@/shared/types/movie.types'
 
 export const useMovies = (params: MoviesParams = {}) => {
     return useQuery<MoviesResponse>({
         queryKey: ['admin', 'movies', params],
         queryFn: async () => {
-            const response = await apiClient.get<MoviesResponse>('/movies', { params })
+            const response = await apiClient.get<MoviesResponse>('/api/movies', { params })
             return response.data
         },
+        placeholderData: (prev) => prev, // keep previous data to avoid flicker during refetch
         staleTime: 5 * 60 * 1000 // 5 minutes
     })
 }

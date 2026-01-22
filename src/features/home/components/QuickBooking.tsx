@@ -1,5 +1,12 @@
 import React, { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Calendar, CheckCircle2, ChevronDown, Clock, Film, MapPin, Sparkles } from 'lucide-react'
+import { cinemasApi } from '@/shared/api/cinemas.api'
+import { moviesApi } from '@/shared/api/movies.api'
+import { showtimesApi } from '@/shared/api/showtimes.api'
+import type { Cinema } from '@/shared/types/cinema.types'
+import type { Movie, MovieStatus } from '@/shared/types/movie.types'
+import type { Showtime } from '@/shared/types/showtime.types'
 
 type QuickBookingState = {
   cinema: string
@@ -23,6 +30,38 @@ const QuickBooking: React.FC = () => {
   }, [form])
 
   const isFormComplete = completedSteps === 4
+
+  const cinemasQuery = useQuery({
+    queryKey: ['cinemas'],
+    queryFn: cinemasApi.list,
+    staleTime: 5 * 60 * 1000,
+  })
+  const cinemaOptions: Cinema[] = useMemo(() => cinemasQuery.data || [], [cinemasQuery.data])
+
+  const moviesQuery = useQuery({
+    queryKey: ['movies', 'now-showing', { size: 100 }],
+    queryFn: () => moviesApi.getMovies({ status: 'NOW_SHOWING' as MovieStatus, size: 100 }),
+    staleTime: 5 * 60 * 1000,
+  })
+  const movieOptions: Movie[] = useMemo(() => moviesQuery.data?.content || [], [moviesQuery.data])
+
+  const enableShowtimes = !!form.date && !!form.cinema && !!form.movie
+
+  const showtimesQuery = useQuery({
+    queryKey: ['showtimes', 'by-date', form.date],
+    queryFn: () => showtimesApi.getByDate(form.date),
+    enabled: enableShowtimes,
+    staleTime: 60 * 1000,
+  })
+
+  const filteredShowtimes: Showtime[] = useMemo(() => {
+    if (!showtimesQuery.data) return []
+    return showtimesQuery.data.filter((s) => {
+      const okCinema = form.cinema ? String(s.cinemaId) === form.cinema : true
+      const okMovie = form.movie ? String(s.movieId) === form.movie : true
+      return okCinema && okMovie
+    })
+  }, [showtimesQuery.data, form.cinema, form.movie])
 
   return (
     <div className="relative -mt-6 z-10">
@@ -93,15 +132,21 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select cinema...
                     </option>
-                    <option value="c1" className="bg-[#1a2232]">
-                      Cinema 1
-                    </option>
-                    <option value="c2" className="bg-[#1a2232]">
-                      Cinema 2
-                    </option>
-                    <option value="c3" className="bg-[#1a2232]">
-                      Cinema 3
-                    </option>
+                    {cinemasQuery.isLoading && (
+                      <option value="" className="bg-[#1a2232]">
+                        Loading...
+                      </option>
+                    )}
+                    {cinemasQuery.isError && (
+                      <option value="" className="bg-[#1a2232]">
+                        Failed to load cinemas
+                      </option>
+                    )}
+                    {cinemaOptions.map((c) => (
+                      <option key={c.id} value={String(c.id)} className="bg-[#1a2232]">
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none transition-transform duration-300 group-hover:text-[#fe7e32]" />
                   {form.cinema && <div className="absolute inset-0 border-2 border-[#fe7e32]/30 rounded-lg pointer-events-none animate-in fade-in" />}
@@ -129,12 +174,21 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select movie...
                     </option>
-                    <option value="m1" className="bg-[#1a2232]">
-                      Movie 1
-                    </option>
-                    <option value="m2" className="bg-[#1a2232]">
-                      Movie 2
-                    </option>
+                    {moviesQuery.isLoading && (
+                      <option value="" className="bg-[#1a2232]">
+                        Loading...
+                      </option>
+                    )}
+                    {moviesQuery.isError && (
+                      <option value="" className="bg-[#1a2232]">
+                        Failed to load movies
+                      </option>
+                    )}
+                    {movieOptions.map((m) => (
+                      <option key={m.id} value={String(m.id)} className="bg-[#1a2232]">
+                        {m.title}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none transition-transform duration-300 group-hover:text-[#648ddb]" />
                   {form.movie && <div className="absolute inset-0 border-2 border-[#648ddb]/30 rounded-lg pointer-events-none animate-in fade-in" />}
@@ -162,12 +216,22 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select date...
                     </option>
-                    <option value="2026-01-19" className="bg-[#1a2232]">
-                      Monday, 19/01
-                    </option>
-                    <option value="2026-01-20" className="bg-[#1a2232]">
-                      Tuesday, 20/01
-                    </option>
+                    {/* Simple: 7 ngày tiếp theo */}
+                    {Array.from({ length: 7 }).map((_, idx) => {
+                      const d = new Date()
+                      d.setDate(d.getDate() + idx)
+                      const iso = d.toISOString().slice(0, 10)
+                      const label = d.toLocaleDateString('vi-VN', {
+                        weekday: 'long',
+                        day: '2-digit',
+                        month: '2-digit',
+                      })
+                      return (
+                        <option key={iso} value={iso} className="bg-[#1a2232]">
+                          {label}
+                        </option>
+                      )
+                    })}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none transition-transform duration-300 group-hover:text-[#fe7e32]" />
                   {form.date && <div className="absolute inset-0 border-2 border-[#fe7e32]/30 rounded-lg pointer-events-none animate-in fade-in" />}
@@ -189,21 +253,39 @@ const QuickBooking: React.FC = () => {
                   <select
                     value={form.showtime}
                     onChange={(e) => setForm((s) => ({ ...s, showtime: e.target.value }))}
-                    disabled={!form.date}
+                    disabled={!enableShowtimes}
                     className="w-full px-3 py-2.5 bg-[#1a2232] border border-gray-700 rounded-lg text-white text-sm appearance-none cursor-pointer transition-all duration-300 hover:border-[#648ddb]/50 focus:border-[#648ddb] focus:ring-2 focus:ring-[#648ddb]/20 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-500"
                   >
                     <option value="" className="bg-[#1a2232]">
                       Select showtime...
                     </option>
-                    <option value="st1" className="bg-[#1a2232]">
-                      09:00
-                    </option>
-                    <option value="st2" className="bg-[#1a2232]">
-                      11:30
-                    </option>
-                    <option value="st3" className="bg-[#1a2232]">
-                      20:15
-                    </option>
+                    {showtimesQuery.isLoading && (
+                      <option value="" className="bg-[#1a2232]">
+                        Loading...
+                      </option>
+                    )}
+                    {showtimesQuery.isError && (
+                      <option value="" className="bg-[#1a2232]">
+                        Failed to load showtimes
+                      </option>
+                    )}
+                    {!showtimesQuery.isLoading &&
+                      !showtimesQuery.isError &&
+                      enableShowtimes &&
+                      filteredShowtimes.length === 0 && (
+                        <option value="" className="bg-[#1a2232]">
+                          No showtimes found
+                        </option>
+                      )}
+                    {filteredShowtimes.map((s) => (
+                      <option key={s.id} value={String(s.id)} className="bg-[#1a2232]">
+                        {new Date(s.startTime).toLocaleTimeString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}{' '}
+                        - {s.cinemaName} - {s.roomNumber}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none transition-transform duration-300 group-hover:text-[#648ddb]" />
                   {form.showtime && <div className="absolute inset-0 border-2 border-[#648ddb]/30 rounded-lg pointer-events-none animate-in fade-in" />}
@@ -220,6 +302,11 @@ const QuickBooking: React.FC = () => {
                       ? 'bg-gradient-to-r from-[#a855f7] to-[#648ddb] text-white shadow-lg shadow-[#a855f7]/30 hover:shadow-xl hover:shadow-[#a855f7]/40 hover:scale-[1.02] active:scale-[0.98]'
                       : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   }`}
+                  onClick={() => {
+                    if (!form.showtime) return
+                    // Điều hướng sang trang booking với showtimeId đã chọn
+                    window.location.href = `/booking/${form.showtime}`
+                  }}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
                     <Film className="w-4 h-4" />

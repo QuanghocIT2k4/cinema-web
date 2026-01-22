@@ -1,0 +1,6 @@
+export { default as MovieHero } from './MovieHero'
+export { default as MovieInfo } from './MovieInfo'
+export { default as SimilarMovies } from './SimilarMovies'
+export { default as ShowtimesSection } from './ShowtimesSection'
+export { default as CastSection } from './CastSection'
+export { default as MovieDetail } from './MovieDetail'

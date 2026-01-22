@@ -14,6 +14,7 @@ export const ROUTES = {
     MOVIES: '/admin/movies',
     CINEMAS: '/admin/cinemas',
     SHOWTIMES: '/admin/showtimes',
+    USERS: '/admin/users',
   },
 } as const
 

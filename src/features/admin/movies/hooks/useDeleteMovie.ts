@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import apiClient from '../../../../services/api'
+import { apiClient } from '@/shared/api/api-client'
 import { toast } from 'react-hot-toast'
 
 export const useDeleteMovie = () => {
@@ -7,7 +7,7 @@ export const useDeleteMovie = () => {
 
     return useMutation<void, Error, number>({
         mutationFn: async (id: number) => {
-            await apiClient.delete(`/movies/${id}`)
+            await apiClient.delete(`/api/movies/${id}`)
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'movies'] })

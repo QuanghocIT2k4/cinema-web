@@ -13,3 +13,8 @@ export const useMovieDetail = (id: number | string | null) => {
   })
 }
 
+
+
+
+
+

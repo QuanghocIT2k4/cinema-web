@@ -9,10 +9,18 @@ import RegisterPage from './features/auth/pages/RegisterPage'
 import MoviesPage from './features/movies/pages/MoviesPage'
 import MovieDetailPage from './features/movies/pages/MovieDetailPage'
 import AboutPage from './features/about/pages/AboutPage'
+import BookingPage from './features/booking/pages/BookingPage'
+import ProfilePage from './features/profile/pages/ProfilePage'
 import { ROUTES } from './shared/constants/routes'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './features/admin/layout/AdminLayout'
 import MovieManagementPage from './features/admin/movies/pages/MovieManagementPage'
+import AdminDashboard from './features/admin/pages/AdminDashboard'
+import CinemaManagementPage from './features/admin/cinemas/pages/CinemaManagementPage'
+import RoomManagementPage from './features/admin/rooms/pages/RoomManagementPage'
+import ShowtimeManagementPage from './features/admin/showtimes/pages/ShowtimeManagementPage'
+import BookingManagementPage from './features/admin/bookings/pages/BookingManagementPage'
+import UserManagementPage from './features/admin/users/pages/UserManagementPage'
 
 function App() {
   return (
@@ -69,6 +77,24 @@ function App() {
             }
           />
           <Route
+            path={ROUTES.BOOKING(':showtimeId')}
+            element={
+              <Layout>
+                <BookingPage />
+              </Layout>
+            }
+          />
+          <Route
+            path={ROUTES.PROFILE}
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ProfilePage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path={ROUTES.ABOUT}
             element={
               <Layout>
@@ -81,12 +107,18 @@ function App() {
           <Route
             path={ROUTES.ADMIN.DASHBOARD}
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin>
                 <AdminLayout />
               </ProtectedRoute>
             }
           >
+            <Route index element={<AdminDashboard />} />
             <Route path="movies" element={<MovieManagementPage />} />
+            <Route path="cinemas" element={<CinemaManagementPage />} />
+            <Route path="rooms" element={<RoomManagementPage />} />
+            <Route path="showtimes" element={<ShowtimeManagementPage />} />
+            <Route path="bookings" element={<BookingManagementPage />} />
+            <Route path="users" element={<UserManagementPage />} />
           </Route>
 
           {/* 404 */}

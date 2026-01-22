@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -26,13 +27,18 @@ export default function LoginPage() {
   const navigate = useNavigate() // React Hook: điều hướng trang
   const location = useLocation() // React Hook: lấy location state
   const { login, isAuthenticated } = useAuth() // AuthContext: lấy login function và isAuthenticated
+  const successMessage = (location.state as any)?.message as string | undefined
   
   // Nếu đã đăng nhập, redirect về trang chủ hoặc trang trước đó
+  // IMPORTANT: redirect trong useEffect để tránh navigate trong render (có thể gây loop/đơ UI)
+  useEffect(() => {
   if (isAuthenticated) {
     const from = (location.state as any)?.from?.pathname || ROUTES.HOME
     navigate(from, { replace: true })
-    return null
   }
+  }, [isAuthenticated, location.state, navigate])
+
+  if (isAuthenticated) return null
   
   // React Hook Form: quản lý form state
   const {
@@ -88,6 +94,13 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
+            {/* Success message (ví dụ sau khi đăng ký xong chuyển về login) */}
+            {successMessage && (
+              <div className="p-4 bg-emerald-500/20 border border-emerald-400/60 text-emerald-200 rounded-lg backdrop-blur-sm text-sm">
+                {successMessage}
+              </div>
+            )}
+
             {/* Server Error */}
             {errors.root && (
               <div className="p-4 bg-red-500/20 border border-red-400/50 text-red-300 rounded-lg backdrop-blur-sm">
