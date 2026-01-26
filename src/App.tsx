@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
-import { Layout } from './components/layout'
+import { Layout } from './shared/components/layout'
 import HomePage from './features/home/pages/HomePage'
 import NotFound from './shared/pages/NotFound'
 import LoginPage from './features/auth/pages/LoginPage'
@@ -13,10 +13,9 @@ import BookingPage from './features/booking/pages/BookingPage'
 import ProfilePage from './features/profile/pages/ProfilePage'
 import BookingHistoryPage from './features/profile/pages/BookingHistoryPage'
 import { ROUTES } from './shared/constants/routes'
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './shared/components/ProtectedRoute'
 import AdminLayout from './features/admin/layout/AdminLayout'
 import MovieManagementPage from './features/admin/movies/pages/MovieManagementPage'
-import AdminDashboard from './features/admin/pages/AdminDashboard'
 import CinemaManagementPage from './features/admin/cinemas/pages/CinemaManagementPage'
 import RoomManagementPage from './features/admin/rooms/pages/RoomManagementPage'
 import ShowtimeManagementPage from './features/admin/showtimes/pages/ShowtimeManagementPage'
@@ -123,7 +122,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<AdminDashboard />} />
+            <Route index element={<Navigate to="showtimes" replace />} />
             <Route path="movies" element={<MovieManagementPage />} />
             <Route path="cinemas" element={<CinemaManagementPage />} />
             <Route path="rooms" element={<RoomManagementPage />} />

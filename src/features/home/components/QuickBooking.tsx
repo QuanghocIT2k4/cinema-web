@@ -1,12 +1,8 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Calendar, CheckCircle2, ChevronDown, Clock, Film, MapPin, Sparkles } from 'lucide-react'
-import { cinemasApi } from '@/shared/api/cinemas.api'
-import { moviesApi } from '@/shared/api/movies.api'
-import { showtimesApi } from '@/shared/api/showtimes.api'
+import { useQuickBookingCinemas, useQuickBookingMovies, useQuickBookingShowtimes } from '../hooks'
 import type { Cinema } from '@/shared/types/cinema.types'
-import type { Movie, MovieStatus } from '@/shared/types/movie.types'
-import type { Showtime } from '@/shared/types/showtime.types'
+import type { Movie } from '@/shared/types/movie.types'
 
 type QuickBookingState = {
   cinema: string
@@ -31,37 +27,27 @@ const QuickBooking: React.FC = () => {
 
   const isFormComplete = completedSteps === 4
 
-  const cinemasQuery = useQuery({
-    queryKey: ['cinemas'],
-    queryFn: cinemasApi.list,
-    staleTime: 5 * 60 * 1000,
-  })
-  const cinemaOptions: Cinema[] = useMemo(() => cinemasQuery.data || [], [cinemasQuery.data])
+  const {
+    data: cinemasData,
+    isLoading: isLoadingCinemas,
+    isError: isErrorCinemas,
+  } = useQuickBookingCinemas()
+  const cinemaOptions: Cinema[] = useMemo(() => cinemasData || [], [cinemasData])
 
-  const moviesQuery = useQuery({
-    queryKey: ['movies', 'now-showing', { size: 100 }],
-    queryFn: () => moviesApi.getMovies({ status: 'NOW_SHOWING' as MovieStatus, size: 100 }),
-    staleTime: 5 * 60 * 1000,
-  })
-  const movieOptions: Movie[] = useMemo(() => moviesQuery.data?.content || [], [moviesQuery.data])
+  const {
+    data: moviesData,
+    isLoading: isLoadingMovies,
+    isError: isErrorMovies,
+  } = useQuickBookingMovies()
+  const movieOptions: Movie[] = useMemo(() => moviesData?.content || [], [moviesData])
 
   const enableShowtimes = !!form.date && !!form.cinema && !!form.movie
 
-  const showtimesQuery = useQuery({
-    queryKey: ['showtimes', 'by-date', form.date],
-    queryFn: () => showtimesApi.getByDate(form.date),
-    enabled: enableShowtimes,
-    staleTime: 60 * 1000,
-  })
-
-  const filteredShowtimes: Showtime[] = useMemo(() => {
-    if (!showtimesQuery.data) return []
-    return showtimesQuery.data.filter((s) => {
-      const okCinema = form.cinema ? String(s.cinemaId) === form.cinema : true
-      const okMovie = form.movie ? String(s.movieId) === form.movie : true
-      return okCinema && okMovie
-    })
-  }, [showtimesQuery.data, form.cinema, form.movie])
+  const {
+    showtimes: filteredShowtimes,
+    isLoading: isLoadingShowtimes,
+    isError: isErrorShowtimes,
+  } = useQuickBookingShowtimes(form.date, form.cinema, form.movie)
 
   return (
     <div className="relative -mt-6 z-10">
@@ -132,12 +118,12 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select cinema...
                     </option>
-                    {cinemasQuery.isLoading && (
+                    {isLoadingCinemas && (
                       <option value="" className="bg-[#1a2232]">
                         Loading...
                       </option>
                     )}
-                    {cinemasQuery.isError && (
+                    {isErrorCinemas && (
                       <option value="" className="bg-[#1a2232]">
                         Failed to load cinemas
                       </option>
@@ -174,12 +160,12 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select movie...
                     </option>
-                    {moviesQuery.isLoading && (
+                    {isLoadingMovies && (
                       <option value="" className="bg-[#1a2232]">
                         Loading...
                       </option>
                     )}
-                    {moviesQuery.isError && (
+                    {isErrorMovies && (
                       <option value="" className="bg-[#1a2232]">
                         Failed to load movies
                       </option>
@@ -259,18 +245,18 @@ const QuickBooking: React.FC = () => {
                     <option value="" className="bg-[#1a2232]">
                       Select showtime...
                     </option>
-                    {showtimesQuery.isLoading && (
+                    {isLoadingShowtimes && (
                       <option value="" className="bg-[#1a2232]">
                         Loading...
                       </option>
                     )}
-                    {showtimesQuery.isError && (
+                    {isErrorShowtimes && (
                       <option value="" className="bg-[#1a2232]">
                         Failed to load showtimes
                       </option>
                     )}
-                    {!showtimesQuery.isLoading &&
-                      !showtimesQuery.isError &&
+                    {!isLoadingShowtimes &&
+                      !isErrorShowtimes &&
                       enableShowtimes &&
                       filteredShowtimes.length === 0 && (
                         <option value="" className="bg-[#1a2232]">

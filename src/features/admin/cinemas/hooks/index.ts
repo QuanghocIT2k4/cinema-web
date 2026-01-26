@@ -1,0 +1,1 @@
+export { useCinemas } from './useCinemas'

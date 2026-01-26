@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { refreshmentsApi } from '@/shared/api/refreshments.api'
+import { useRefreshments } from '../hooks'
 
 interface RefreshmentSelectorProps {
   selectedRefreshments: Array<{ refreshmentId: number; quantity: number }>
@@ -14,10 +13,7 @@ export default function RefreshmentSelector({
   onSkip,
   onContinue,
 }: RefreshmentSelectorProps) {
-  const { data: refreshments, isLoading } = useQuery({
-    queryKey: ['refreshments', 'current'],
-    queryFn: () => refreshmentsApi.getCurrentRefreshments(),
-  })
+  const { data: refreshments, isLoading } = useRefreshments()
 
   if (isLoading) {
     return (

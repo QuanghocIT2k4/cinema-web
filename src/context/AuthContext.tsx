@@ -4,6 +4,7 @@ import { authApi } from '@/shared/api/auth.api'
 import { setToken, getToken, removeToken, isValidToken, decodeToken } from '@/shared/utils/jwt'
 import type { LoginRequest, RegisterRequest, UserResponse, AuthResponse } from '@/shared/types/auth.types'
 import { toast } from 'react-hot-toast'
+import { ROUTES } from '@/shared/constants/routes'
 
 /**
  * AuthContextType: Định nghĩa interface cho AuthContext
@@ -167,8 +168,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Toast thành công
       toast.success('Đăng nhập thành công!')
       
-      // Redirect về trang chủ
-      navigate('/')
+      // Redirect dựa trên role: ADMIN → /admin, CUSTOMER → trang chủ
+      if (response.user.role === 'ADMIN') {
+        navigate(ROUTES.ADMIN.DASHBOARD)
+      } else {
+        navigate(ROUTES.HOME)
+      }
     } catch (error) {
       // Toast lỗi
       const message = (error as any)?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'

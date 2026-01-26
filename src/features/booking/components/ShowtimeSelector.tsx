@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { showtimesApi } from '@/shared/api/showtimes.api'
 import { useParams } from 'react-router-dom'
+import { useShowtimesByMovie } from '../hooks'
 
 interface ShowtimeSelectorProps {
   onSelectShowtime: (id: number | string) => void
@@ -9,11 +8,7 @@ interface ShowtimeSelectorProps {
 export default function ShowtimeSelector({ onSelectShowtime }: ShowtimeSelectorProps) {
   const { movieId } = useParams<{ movieId: string }>()
 
-  const { data: showtimes, isLoading } = useQuery({
-    queryKey: ['showtimes', 'movie', movieId],
-    queryFn: () => showtimesApi.getByMovie(movieId!),
-    enabled: !!movieId,
-  })
+  const { data: showtimes, isLoading } = useShowtimesByMovie(movieId)
 
   if (isLoading) {
     return (

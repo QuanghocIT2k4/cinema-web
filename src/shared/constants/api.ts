@@ -13,6 +13,8 @@ export const API_ENDPOINTS = {
     LIST: '/api/movies',
     DETAIL: (id: number | string) => `/api/movies/${id}`,
     SEARCH: '/api/movies/search',
+    ACTORS: (id: number | string) => `/api/movies/${id}/actors`,
+    REVIEWS: (id: number | string) => `/api/movies/${id}/reviews`,
   },
   SHOWTIMES: {
     LIST: '/api/showtimes',

@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/shared/api/api-client'
 import { UsersTable, UserFormModal, UsersPagination } from './index'
+import { useUsers, useUserMutations } from '../hooks'
 import type { UserResponse } from '@/shared/types/auth.types'
 import type { UserRequest } from '@/shared/types/user.types'
-import { toast } from 'react-hot-toast'
 import ConfirmModal from '@/shared/components/ConfirmModal'
-
-const PAGE_SIZE = 10
 
 export default function UserManagement() {
   const [page, setPage] = useState(0)
@@ -24,46 +20,8 @@ export default function UserManagement() {
     status: 'ACTIVE',
   })
 
-  const queryClient = useQueryClient()
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['admin', 'users', page],
-    queryFn: async () => {
-      const res = await apiClient.get<{ content: UserResponse[]; totalElements: number; totalPages: number }>(
-        '/api/users',
-        { params: { page, size: PAGE_SIZE } }
-      )
-      return res.data
-    },
-  })
-
-  const saveMutation = useMutation({
-    mutationFn: (userData: UserRequest) => {
-      if (editingUser) {
-        return apiClient.put(`/api/users/${editingUser.id}`, userData)
-      }
-      return apiClient.post('/api/users', userData)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      toast.success(editingUser ? 'User updated successfully!' : 'User created successfully!')
-      handleCloseModal()
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Action failed')
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiClient.delete(`/api/users/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      toast.success('User deleted successfully!')
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to delete user')
-    },
-  })
+  const { data, isLoading, error } = useUsers(page)
+  const { saveMutation, deleteMutation } = useUserMutations()
 
   useEffect(() => {
     if (editingUser) {
@@ -122,7 +80,14 @@ export default function UserManagement() {
   }
 
   const handleSubmit = () => {
-    saveMutation.mutate(form)
+    saveMutation.mutate(
+      { userData: form, editingUser },
+      {
+        onSuccess: () => {
+          handleCloseModal()
+        },
+      }
+    )
   }
 
   return (

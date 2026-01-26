@@ -69,13 +69,13 @@ export default function MovieDetail() {
           {/* Left Column - Main Content */}
           <div className="w-full lg:w-[calc(100%-22rem)] space-y-8">
             <MovieHero movie={movie} onWatchTrailer={() => setShowTrailer(true)} />
-            <CastSection />
+            <CastSection movieId={id || null} />
             <ShowtimesSection
               showtimes={upcomingShowtimes}
               isLoading={showtimesQuery.isLoading}
               isError={showtimesQuery.isError}
             />
-            <ReviewsSection />
+            <ReviewsSection movieId={id || null} />
           </div>
 
           {/* Right Column - Sidebar */}

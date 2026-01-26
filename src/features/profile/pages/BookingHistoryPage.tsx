@@ -1,32 +1,13 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { bookingsApi } from '@/shared/api/bookings.api'
 import { BookingStatus } from '@/shared/types/booking.types'
 import { Calendar, MapPin, Ticket, Clock } from 'lucide-react'
-
-const PAGE_SIZE = 10
+import { useBookingHistory } from '../hooks'
 
 export default function BookingHistoryPage() {
   const [page, setPage] = useState(0)
   const [statusFilter, setStatusFilter] = useState<BookingStatus | ''>('')
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['user', 'bookings', page, statusFilter],
-    queryFn: async () => {
-      try {
-        const result = await bookingsApi.getBookings({
-          page,
-          size: PAGE_SIZE,
-          ...(statusFilter ? { status: statusFilter } : {}),
-        })
-        return result
-      } catch (err: any) {
-        console.error('Error loading bookings:', err)
-        throw err
-      }
-    },
-    retry: 1,
-  })
+  const { data, isLoading, error } = useBookingHistory({ page, statusFilter })
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-'

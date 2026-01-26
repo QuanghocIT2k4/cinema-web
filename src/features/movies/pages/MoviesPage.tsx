@@ -20,6 +20,8 @@ const MoviesPage: React.FC = () => {
       page,
       size: pageSize,
       genre: filters.genres.length > 0 ? filters.genres.join(',') : undefined,
+      year: filters.year ? parseInt(filters.year) : undefined,
+      rating: filters.rating || undefined,
       sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
     }),

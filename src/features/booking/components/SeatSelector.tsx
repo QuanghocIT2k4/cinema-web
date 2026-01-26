@@ -1,7 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { bookingsApi } from '@/shared/api/bookings.api'
-import { showtimesApi } from '@/shared/api/showtimes.api'
-import { roomsApi } from '@/shared/api/rooms.api'
+import { useShowtime, useSeatsByRoom, useBookedSeats } from '../hooks'
 
 interface SeatSelectorProps {
   showtimeId: string
@@ -17,25 +14,13 @@ export default function SeatSelector({
   onContinue,
 }: SeatSelectorProps) {
   // Lấy thông tin showtime để có roomId
-  const { data: showtime } = useQuery({
-    queryKey: ['showtime', showtimeId],
-    queryFn: () => showtimesApi.getById(showtimeId),
-    enabled: !!showtimeId,
-  })
+  const { data: showtime } = useShowtime(showtimeId)
 
   // Lấy danh sách ghế thực từ database theo roomId
-  const { data: seats, isLoading: isLoadingSeats } = useQuery({
-    queryKey: ['seats', 'room', showtime?.roomId],
-    queryFn: () => roomsApi.getSeatsByRoom(showtime!.roomId),
-    enabled: !!showtime?.roomId,
-  })
+  const { data: seats, isLoading: isLoadingSeats } = useSeatsByRoom(showtime?.roomId)
 
   // Lấy danh sách ghế đã được đặt cho showtime này
-  const { data: bookedSeats, isLoading: isLoadingBooked } = useQuery({
-    queryKey: ['bookedSeats', showtimeId],
-    queryFn: () => bookingsApi.getBookedSeatsByShowtime(showtimeId),
-    enabled: !!showtimeId,
-  })
+  const { data: bookedSeats, isLoading: isLoadingBooked } = useBookedSeats(showtimeId)
 
   const isLoading = isLoadingSeats || isLoadingBooked || !showtime
 

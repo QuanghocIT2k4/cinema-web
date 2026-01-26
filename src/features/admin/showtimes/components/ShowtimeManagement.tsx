@@ -1,16 +1,18 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { showtimesApi, type ShowtimePage } from '@/shared/api/showtimes.api'
-import { moviesApi } from '@/shared/api/movies.api'
-import { cinemasApi } from '@/shared/api/cinemas.api'
-import { roomsApi } from '@/shared/api/rooms.api'
+import { useState, useEffect } from 'react'
 import type { Showtime } from '@/shared/types/showtime.types'
 import { MovieStatus } from '@/shared/types/movie.types'
 import { toast } from 'react-hot-toast'
 import ConfirmModal from '@/shared/components/ConfirmModal'
 import { ShowtimesTable, ShowtimesPagination, ShowtimeFormModal } from './index'
-
-const PAGE_SIZE = 10
+import {
+  useShowtimes,
+  useAvailableMovies,
+  useCinemasForShowtimes,
+  useRoomsByCinema,
+  useShowtimeMutations,
+} from '../hooks'
+import { useQuery } from '@tanstack/react-query'
+import { moviesApi } from '@/shared/api/movies.api'
 
 export default function ShowtimeManagement() {
   const [page, setPage] = useState(0)
@@ -27,75 +29,17 @@ export default function ShowtimeManagement() {
     startTime: '',
     price: 50000,
   })
-  const queryClient = useQueryClient()
 
-  const { data, isLoading, error } = useQuery<ShowtimePage>({
-    queryKey: ['admin', 'showtimes', page],
-    queryFn: () => showtimesApi.list({ page, size: PAGE_SIZE }),
-  })
+  const { data, isLoading, error } = useShowtimes(page)
+  const { data: availableMovies } = useAvailableMovies(editingShowtime, form.movieId)
+  const { data: cinemasData } = useCinemasForShowtimes()
+  const { data: roomsData } = useRoomsByCinema(form.cinemaId)
+  const { saveMutation, deleteMutation } = useShowtimeMutations()
 
-  const { data: moviesData } = useQuery({
+  // Lấy toàn bộ movies để kiểm tra status khi submit
+  const { data: allMoviesData } = useQuery({
     queryKey: ['movies', 'all'],
     queryFn: () => moviesApi.getMovies({ page: 0, size: 100 }),
-  })
-
-  // Lọc phim chỉ hiển thị trạng thái NOW_SHOWING và COMING_SOON (loại ENDED)
-  // Khi chỉnh sửa, vẫn thêm phim đang được chọn kể cả khi phim đã ENDED
-  const availableMovies = useMemo(() => {
-    if (!moviesData?.content) return []
-    const filtered = moviesData.content.filter(
-      (movie) => movie.status === MovieStatus.NOW_SHOWING || movie.status === MovieStatus.COMING_SOON
-    )
-    // Nếu đang chỉnh sửa và phim hiện tại có trạng thái ENDED thì vẫn thêm vào danh sách
-    if (editingShowtime && form.movieId) {
-      const selectedMovie = moviesData.content.find((m) => m.id === form.movieId)
-      if (selectedMovie && selectedMovie.status === MovieStatus.ENDED) {
-        // Kiểm tra nếu phim chưa tồn tại trong danh sách đã lọc thì mới thêm vào
-        if (!filtered.find((m) => m.id === selectedMovie.id)) {
-          return [...filtered, selectedMovie]
-        }
-      }
-    }
-    return filtered
-  }, [moviesData, editingShowtime, form.movieId])
-
-  const { data: cinemasData } = useQuery({
-    queryKey: ['cinemas'],
-    queryFn: () => cinemasApi.list(),
-  })
-
-  const { data: roomsData } = useQuery({
-    queryKey: ['rooms', form.cinemaId],
-    queryFn: () => (form.cinemaId ? roomsApi.byCinema(form.cinemaId) : Promise.resolve([])),
-    enabled: !!form.cinemaId,
-  })
-
-  const saveMutation = useMutation({
-    mutationFn: (showtimeData: { movieId: number; roomId: number; startTime: string; price: number }) => {
-      if (editingShowtime) {
-        return showtimesApi.update(editingShowtime.id, showtimeData)
-      }
-      return showtimesApi.create(showtimeData)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showtimes'] })
-      toast.success(editingShowtime ? 'Showtime updated successfully!' : 'Showtime created successfully!')
-      handleCloseModal()
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Action failed')
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => showtimesApi.remove(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showtimes'] })
-      toast.success('Showtime deleted successfully!')
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to delete showtime')
-    },
   })
 
   useEffect(() => {
@@ -149,19 +93,23 @@ export default function ShowtimeManagement() {
       return
     }
 
-    // Kiểm tra để đảm bảo phim được chọn không có trạng thái ENDED
-    const selectedMovie = moviesData?.content?.find((m) => m.id === form.movieId)
-    if (selectedMovie && selectedMovie.status === MovieStatus.ENDED) {
-      toast.error('Cannot create showtime for a movie that has ended')
-      return
+    // Kiểm tra để đảm bảo phim được chọn không có trạng thái ENDED (chỉ khi tạo mới)
+    if (!editingShowtime) {
+      const selectedMovie = allMoviesData?.content?.find((m) => m.id === form.movieId)
+      if (selectedMovie && selectedMovie.status === MovieStatus.ENDED) {
+        toast.error('Cannot create showtime for a movie that has ended')
+        return
+      }
     }
 
-    saveMutation.mutate({
-      movieId: form.movieId as number,
-      roomId: form.roomId as number,
-      startTime: form.startTime,
-      price: form.price,
-    })
+    saveMutation.mutate(
+      { showtimeData: form, editingShowtime },
+      {
+        onSuccess: () => {
+          handleCloseModal()
+        },
+      }
+    )
   }
 
   return (
@@ -200,7 +148,7 @@ export default function ShowtimeManagement() {
         onClose={handleCloseModal}
         editing={editingShowtime}
         form={form}
-        movies={availableMovies}
+        movies={availableMovies || []}
         cinemas={cinemasData || []}
         rooms={roomsData || []}
         isLoading={saveMutation.isPending}

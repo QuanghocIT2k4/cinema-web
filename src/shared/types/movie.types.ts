@@ -21,6 +21,8 @@ export interface Movie {
   ageRating: string
   poster: string // đường dẫn URL poster
   trailer: string // đường dẫn URL trailer
+  director?: string
+  cast?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -36,6 +38,8 @@ export interface MovieFormData {
   ageRating: string
   poster: string
   trailer: string
+  director?: string
+  cast?: string
 }
 
 export interface MoviesParams {
@@ -44,6 +48,8 @@ export interface MoviesParams {
   search?: string
   status?: MovieStatus
   genre?: string
+  year?: number
+  rating?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
 }
@@ -54,4 +60,18 @@ export interface MoviesResponse {
   totalPages: number
   number: number
   size: number
+}
+
+export interface MovieActor {
+  id: number
+  name: string
+  avatarUrl: string | null
+}
+
+export interface Review {
+  id: number
+  authorName: string
+  rating: number
+  comment: string
+  createdAt: string
 }

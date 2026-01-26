@@ -42,7 +42,14 @@ export default function ProfileInfoCard({ profile, onEdit }: ProfileInfoCardProp
           </div>
         </div>
         <div className="flex justify-end pt-2">
-          <Button type="button" onClick={onEdit}>
+          <Button 
+            type="button" 
+            onClick={(e) => {
+              e.preventDefault()
+              onEdit()
+            }}
+            className="bg-[#fe7e32] hover:bg-[#fe7e32]/90 text-white"
+          >
             Edit details
           </Button>
         </div>

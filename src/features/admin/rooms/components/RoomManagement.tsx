@@ -1,13 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/shared/api/api-client'
-import { cinemasApi } from '@/shared/api/cinemas.api'
 import { RoomsTable, RoomFormModal, RoomsPagination, RoomsFilter } from './index'
+import { useRooms, useCinemasForRooms, useRoomMutations } from '../hooks'
 import type { Room } from '@/shared/types/room.types'
-import { toast } from 'react-hot-toast'
 import ConfirmModal from '@/shared/components/ConfirmModal'
-
-const PAGE_SIZE = 10
 
 export default function RoomManagement() {
   const [page, setPage] = useState(0)
@@ -21,53 +16,9 @@ export default function RoomManagement() {
     totalCols: 10,
   })
 
-  const queryClient = useQueryClient()
-
-  const { data: cinemasData } = useQuery({
-    queryKey: ['cinemas'],
-    queryFn: () => cinemasApi.list(),
-  })
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['admin', 'rooms', page, selectedCinemaId],
-    queryFn: async () => {
-      const params: any = { page, size: PAGE_SIZE }
-      if (selectedCinemaId !== 'all') params.cinemaId = selectedCinemaId
-      const res = await apiClient.get<{ content: Room[]; totalElements: number; totalPages: number }>(
-        '/api/rooms',
-        { params }
-      )
-      return res.data
-    },
-  })
-
-  const saveMutation = useMutation({
-    mutationFn: (roomData: typeof form) => {
-      if (editingRoom) {
-        return apiClient.put(`/api/rooms/${editingRoom.id}`, roomData)
-      }
-      return apiClient.post('/api/rooms', roomData)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'rooms'] })
-      toast.success(editingRoom ? 'Room updated successfully!' : 'Room created successfully!')
-      handleCloseModal()
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Action failed')
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiClient.delete(`/api/rooms/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'rooms'] })
-      toast.success('Room deleted successfully!')
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to delete room')
-    },
-  })
+  const { data: cinemasData } = useCinemasForRooms()
+  const { data, isLoading, error } = useRooms({ page, selectedCinemaId })
+  const { saveMutation, deleteMutation } = useRoomMutations()
 
   useEffect(() => {
     if (editingRoom) {
@@ -118,7 +69,14 @@ export default function RoomManagement() {
   }
 
   const handleSubmit = () => {
-    saveMutation.mutate(form)
+    saveMutation.mutate(
+      { roomData: form, editingRoom },
+      {
+        onSuccess: () => {
+          handleCloseModal()
+        },
+      }
+    )
   }
 
   return (

@@ -1,12 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
-import { cinemasApi } from '@/shared/api/cinemas.api'
+import { useCinemas } from '../hooks'
 
 const CinemaManagementPage = () => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['cinemas', 'admin'],
-    queryFn: cinemasApi.list,
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data, isLoading, isError } = useCinemas()
 
   return (
     <div className="space-y-4">

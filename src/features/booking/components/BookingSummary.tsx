@@ -1,11 +1,6 @@
 import { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { showtimesApi } from '@/shared/api/showtimes.api'
-import { bookingsApi } from '@/shared/api/bookings.api'
-import { refreshmentsApi } from '@/shared/api/refreshments.api'
-import { useNavigate } from 'react-router-dom'
+import { useShowtime, useRefreshments, useCreateBooking } from '../hooks'
 import { toast } from 'react-hot-toast'
-import { ROUTES } from '@/shared/constants/routes'
 
 interface BookingSummaryProps {
   showtimeId: string
@@ -15,32 +10,11 @@ interface BookingSummaryProps {
 }
 
 export default function BookingSummary({ showtimeId, selectedSeats, selectedRefreshments = [], onBack }: BookingSummaryProps) {
-  const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { data: showtime } = useQuery({
-    queryKey: ['showtime', showtimeId],
-    queryFn: () => showtimesApi.getById(showtimeId),
-    enabled: !!showtimeId,
-  })
-
-  const { data: refreshments } = useQuery({
-    queryKey: ['refreshments', 'current'],
-    queryFn: () => refreshmentsApi.getCurrentRefreshments(),
-  })
-
-  const createBookingMutation = useMutation({
-    mutationFn: (payload: { showtimeId: string; seatIds: number[] }) =>
-      bookingsApi.createBooking(payload),
-    onSuccess: () => {
-      toast.success('Booking successful!')
-      navigate(ROUTES.PROFILE)
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Booking failed')
-      setIsSubmitting(false)
-    },
-  })
+  const { data: showtime } = useShowtime(showtimeId)
+  const { data: refreshments } = useRefreshments()
+  const createBookingMutation = useCreateBooking()
 
   const handleSubmit = () => {
     if (selectedSeats.length === 0) {
@@ -48,11 +22,14 @@ export default function BookingSummary({ showtimeId, selectedSeats, selectedRefr
       return
     }
     setIsSubmitting(true)
-    createBookingMutation.mutate({
-      showtimeId,
-      seatIds: selectedSeats,
-      refreshments: selectedRefreshments.length > 0 ? selectedRefreshments : undefined,
-    })
+    createBookingMutation.mutate(
+      { showtimeId, seatIds: selectedSeats },
+      {
+        onError: () => {
+          setIsSubmitting(false)
+        },
+      }
+    )
   }
 
   // Tính tổng tiền vé
