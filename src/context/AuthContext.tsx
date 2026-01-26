@@ -4,7 +4,6 @@ import { authApi } from '@/shared/api/auth.api'
 import { setToken, getToken, removeToken, isValidToken, decodeToken } from '@/shared/utils/jwt'
 import type { LoginRequest, RegisterRequest, UserResponse, AuthResponse } from '@/shared/types/auth.types'
 import { toast } from 'react-hot-toast'
-import { ROUTES } from '@/shared/constants/routes'
 
 /**
  * AuthContextType: Định nghĩa interface cho AuthContext
@@ -15,7 +14,7 @@ interface AuthContextType {
   token: string | null                // JWT token (null nếu chưa đăng nhập)
   isAuthenticated: boolean            // Trạng thái đã đăng nhập hay chưa
   isLoading: boolean                  // Trạng thái đang tải (kiểm tra token khi app khởi động)
-  login: (data: LoginRequest) => Promise<void>      // Function đăng nhập
+  login: (data: LoginRequest) => Promise<UserResponse>      // Function đăng nhập
   register: (data: RegisterRequest) => Promise<void> // Function đăng ký
   logout: () => void                  // Function đăng xuất
   setUserProfile: (u: UserResponse) => void          // Cập nhật profile trong context

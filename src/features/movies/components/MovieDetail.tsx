@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 import { useMovieDetail } from '../hooks/useMovieDetail'
 import { useMovies } from '../hooks/useMovies'
 import { useShowtimesByMovie } from '../hooks/useShowtimesByMovie'
@@ -12,7 +11,7 @@ import ReviewsSection from './ReviewsSection'
 
 export default function MovieDetail() {
   const { id } = useParams<{ id: string }>()
-  const { data: movie, isLoading, isError, error } = useMovieDetail(id || null)
+  const { data: movie, isLoading, isError } = useMovieDetail(id || null)
   const showtimesQuery = useShowtimesByMovie(id || null)
   const [showTrailer, setShowTrailer] = useState(false)
 

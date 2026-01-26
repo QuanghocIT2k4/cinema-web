@@ -1,7 +1,4 @@
-export enum SeatType {
-  NORMAL = 'NORMAL',
-  VIP = 'VIP',
-}
+export type SeatType = 'NORMAL' | 'VIP'
 
 export interface Seat {
   id: number
@@ -13,6 +10,4 @@ export interface Seat {
   createdAt?: string
   updatedAt?: string
 }
-
-
 

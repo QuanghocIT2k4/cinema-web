@@ -3,8 +3,7 @@ import { useMemo } from 'react'
 import { cinemasApi } from '@/shared/api/cinemas.api'
 import { moviesApi } from '@/shared/api/movies.api'
 import { showtimesApi } from '@/shared/api/showtimes.api'
-import type { Cinema } from '@/shared/types/cinema.types'
-import type { Movie, MovieStatus } from '@/shared/types/movie.types'
+import type { MovieStatus } from '@/shared/types/movie.types'
 import type { Showtime } from '@/shared/types/showtime.types'
 
 /**

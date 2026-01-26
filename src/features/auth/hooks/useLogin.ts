@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { loginSchema } from '../validation/authSchema'
 import { ROUTES } from '@/shared/constants/routes'
-import type { LoginRequest } from '@/shared/types/auth.types'
+import type { LoginRequest, UserResponse } from '@/shared/types/auth.types'
 
 export function useLogin() {
   const { login } = useAuth()
@@ -21,11 +21,10 @@ export function useLogin() {
     },
   })
 
-  const loginMutation = useMutation({
+  const loginMutation = useMutation<UserResponse, any, LoginRequest>({
     mutationFn: login,
     onSuccess: (user) => {
       // Redirect sau khi login thành công
-      // user được return từ hàm login() trong AuthContext
       if (user?.role === 'ADMIN') {
         navigate(ROUTES.ADMIN.DASHBOARD, { replace: true })
       } else {
