@@ -29,7 +29,14 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, location.state, navigate])
 
-  if (isAuthenticated) return null
+  // Hiển thị loading khi đã authenticated và đang redirect
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#262C3D] flex items-center justify-center">
+        <div className="text-white text-lg">Đang chuyển hướng...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#262C3D] flex items-center justify-center p-4">

@@ -168,12 +168,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Toast thành công
       toast.success('Đăng nhập thành công!')
       
-      // Redirect dựa trên role: ADMIN → /admin, CUSTOMER → trang chủ
-      if (response.user.role === 'ADMIN') {
-        navigate(ROUTES.ADMIN.DASHBOARD)
-      } else {
-        navigate(ROUTES.HOME)
-      }
+      // Không redirect ở đây, để LoginPage xử lý redirect
+      // LoginPage sẽ tự động redirect khi isAuthenticated thay đổi
     } catch (error) {
       // Toast lỗi
       const message = (error as any)?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
