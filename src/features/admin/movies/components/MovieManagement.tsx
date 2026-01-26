@@ -4,7 +4,6 @@ import { useCreateMovie } from '../hooks/useCreateMovie'
 import { useUpdateMovie } from '../hooks/useUpdateMovie'
 import { useDeleteMovie } from '../hooks/useDeleteMovie'
 import { MoviesFilters, MoviesTable, MoviesPagination, MovieFormModal, DeleteMovieModal } from './index'
-import ConfirmModal from '@/shared/components/ConfirmModal'
 import type { Movie, MovieFormData } from '@/shared/types/movie.types'
 import { MovieStatus } from '@/shared/types/movie.types'
 
