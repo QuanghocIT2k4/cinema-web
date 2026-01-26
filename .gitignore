@@ -1,82 +1,37 @@
-# Node / Vite / React
+# Dependencies
 node_modules/
-dist/
-.turbo/
-.parcel-cache/
+.pnp
+.pnp.js
 
-# Env files
+# Testing
+coverage/
+
+# Production
+dist/
+dist-ssr/
+build/
+
+# Misc
+.DS_Store
 .env
 .env.local
 .env.development.local
-.env.production.local
 .env.test.local
+.env.production.local
 
 # Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-*.log
-
-# Editor / IDE
-.vscode/
-.idea/
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
-# Vite
-.vite/
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Env files
-.env
-.env.*
-
-# IDE / Editor
-.idea/
-.vscode/
-*.iml
-
-# OS
-Thumbs.db
-.DS_Store
-
-# Logs
-logs
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# OS
+Thumbs.db
