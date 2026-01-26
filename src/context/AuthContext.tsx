@@ -146,7 +146,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * 3. Cập nhật state (user, token)
    * 4. Redirect về trang chủ
    */
-  const login = async (data: LoginRequest): Promise<void> => {
+  const login = async (data: LoginRequest): Promise<UserResponse> => {
     try {
       // Gọi API login
       const response: AuthResponse = await authApi.login(data)
@@ -158,18 +158,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setTokenState(response.token)
       // response.user từ AuthResponse chỉ có id, username, email, role, fullName
       // Cần thêm status, createdAt, updatedAt để match với UserResponse
-      setUser({
+      const userData: UserResponse = {
         ...response.user,
         status: 'ACTIVE', // Mặc định ACTIVE
         createdAt: new Date().toISOString(), // Tạm thời, sẽ lấy từ API sau
         updatedAt: new Date().toISOString(), // Tạm thời, sẽ lấy từ API sau
-      } as UserResponse)
+      } as UserResponse
+      setUser(userData)
       
       // Toast thành công
       toast.success('Đăng nhập thành công!')
       
-      // Không redirect ở đây, để LoginPage xử lý redirect
-      // LoginPage sẽ tự động redirect khi isAuthenticated thay đổi
+      // Return user để hook có thể dùng để redirect
+      return userData
     } catch (error) {
       // Toast lỗi
       const message = (error as any)?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'

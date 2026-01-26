@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/shared/components/ui'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/shared/components/ui'
@@ -8,26 +7,12 @@ import { useLogin } from '../hooks'
 import { FormField, InputField, ErrorMessage, SuccessMessage, UserIcon, LockIcon } from '../components'
 
 export default function LoginPage() {
-  const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated } = useAuth()
   const successMessage = (location.state as any)?.message as string | undefined
   const { form, loginMutation, onSubmit } = useLogin()
 
   const { register, handleSubmit, formState: { errors } } = form
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      // Nếu user là ADMIN, redirect đến /admin
-      if (user?.role === 'ADMIN') {
-        navigate(ROUTES.ADMIN.DASHBOARD, { replace: true })
-      } else {
-        // Nếu không, redirect đến trang được yêu cầu hoặc trang chủ
-        const from = (location.state as any)?.from?.pathname || ROUTES.HOME
-        navigate(from, { replace: true })
-      }
-    }
-  }, [isAuthenticated, user, location.state, navigate])
 
   // Hiển thị loading khi đã authenticated và đang redirect
   if (isAuthenticated) {

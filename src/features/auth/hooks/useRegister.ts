@@ -1,8 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { registerSchema } from '../validation/authSchema'
+import { ROUTES } from '@/shared/constants/routes'
 import type { RegisterRequest } from '@/shared/types/auth.types'
 
 interface RegisterFormData {
@@ -15,6 +17,7 @@ interface RegisterFormData {
 
 export function useRegister() {
   const { register: registerUser } = useAuth()
+  const navigate = useNavigate()
 
   const form = useForm<RegisterFormData>({
     resolver: yupResolver(registerSchema),
@@ -29,6 +32,12 @@ export function useRegister() {
 
   const registerMutation = useMutation({
     mutationFn: registerUser,
+    onSuccess: () => {
+      // Redirect về login sau khi đăng ký thành công
+      navigate(ROUTES.LOGIN, { 
+        state: { message: 'Đăng ký thành công! Vui lòng đăng nhập.' } 
+      })
+    },
     onError: (error: any) => {
       const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.'
       form.setError('root', {

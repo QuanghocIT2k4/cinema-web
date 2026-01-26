@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/shared/components/ui'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/shared/components/ui'
@@ -8,7 +7,6 @@ import { useRegister } from '../hooks'
 import { FormField, InputField, ErrorMessage, UserIcon, LockIcon, EmailIcon, CheckIcon } from '../components'
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const { form, registerMutation, onSubmit } = useRegister()
 
@@ -17,13 +15,13 @@ export default function RegisterPage() {
   const confirmPassword = watch('confirmPassword')
   const passwordsMatch = password && confirmPassword && password === confirmPassword
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(ROUTES.HOME, { replace: true })
-    }
-  }, [isAuthenticated, navigate])
-
-  if (isAuthenticated) return null
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#262C3D] flex items-center justify-center">
+        <div className="text-white text-lg">Đang chuyển hướng...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#262C3D] flex items-center justify-center p-4">
